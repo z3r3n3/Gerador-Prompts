@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .prompt-container {
+            margin-top: 20px;
+        }
+        .prompt-item {
+            margin-bottom: 10px;
+        }
+        button {
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Prompt Generator</h1>
+    <textarea id="inputText" rows="10" cols="50" placeholder="Enter your text with prompts here..."></textarea><br>
+    <button onclick="generatePrompts()">Generate Prompts</button>
+    
+    <div id="promptContainer" class="prompt-container"></div>
+
+    <script>
+        function generatePrompts() {
+            const inputText = document.getElementById('inputText').value;
+            const promptContainer = document.getElementById('promptContainer');
+            
+            // Clear previous prompts
+            promptContainer.innerHTML = '';
+
+            // Regular expression to match numbered prompts
+            const promptRegex = /(\d+)\.\s*([^\n]+)/g;
+            let match;
+            let index = 1; // To give each button a unique ID
+
+            while ((match = promptRegex.exec(inputText)) !== null) {
+                let promptText = match[2].trim(); // Trimming whitespace
+
+                // Remove caracteres especiais
+                promptText = promptText.replace(/[^\w\s]/gi, ''); // Remove caracteres não alfanuméricos
+
+                // Create a container for each prompt
+                const promptItem = document.createElement('div');
+                promptItem.className = 'prompt-item';
+                const encodedText = encodeURIComponent(promptText); // Encode the sanitized text
+
+                promptItem.innerHTML = `
+                    ${promptText} <button onclick="copyToClipboard('${encodedText}')">Copy ${index}</button>
+                `;
+                promptContainer.appendChild(promptItem);
+                index++;
+            }
+        }
+
+        function copyToClipboard(text) {
+            const decodedText = decodeURIComponent(text); // Decode the text
+            
+            // Remove aspas e ponto final
+            const sanitizedText = decodedText.replace(/^["']|["']$/g, '').replace(/\.$/, '');
+            const tempInput = document.createElement('input');
+            tempInput.value = sanitizedText; // Use the sanitized text
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            console.log(`Copied: ${sanitizedText}`); // Log copied text for confirmation
+        }
+    </script>
+</body>
+</html>
